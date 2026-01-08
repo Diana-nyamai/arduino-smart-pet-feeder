@@ -1,15 +1,15 @@
 # Arduino Smart Pet Feeder
 
-An automated pet feeding system using an Arduino microcontroller to control a servo motor that opens and closes a food dispenser at predefined times.
+An automated pet feeding system using an Arduino microcontroller to control a stepper motor (28BYJ-48) that opens and closes a food dispenser at predefined times.
 
 ## Project Overview
 
-The Smart Cat Feeder uses an Arduino microcontroller to control a servo motor that opens and closes a food dispenser at predefined times. This project is ideal for pet owners who want to ensure their pets are fed on a consistent schedule, even when away from home.
+The Smart Cat Feeder uses an Arduino microcontroller to control a stepper motor (28BYJ-48) that opens and closes a food dispenser at predefined times. This project is ideal for pet owners who want to ensure their pets are fed on a consistent schedule, even when away from home.
 
 ## Core Features
 
 - ⏰ **Scheduled Feeding** - Time-based feeding using Real-Time Clock (RTC)
-- 🔧 **Servo-Controlled Dispenser** - Precise food portion control
+- 🔧 **Stepper Motor-Controlled Dispenser** - Precise food portion control using 28BYJ-48
 - 💡 **Simple & Low-Cost** - Uses readily available components
 - 🔋 **Power Efficient** - Can run on battery or AC adapter
 - 📝 **Customizable Schedule** - Easy to program multiple feeding times
@@ -20,11 +20,11 @@ The Smart Cat Feeder uses an Arduino microcontroller to control a servo motor th
 ### Core Components (Minimum)
 
 - Arduino UNO R3 Board
-- Servo motor (SG90 / MG90)
+- Stepper motor 28BYJ-48 with ULN2003 driver board
 - RTC module (DS3231 or DS1302)
 - Jumper wires (M-M, M-F)
 - 830-point Breadboard
-- External power supply (5-9V for servo motor)
+- External power supply (5V for stepper motor)
 - USB cable for programming
 
 ### Optional Components (For Enhanced Features)
@@ -52,7 +52,7 @@ This project is built using components from a comprehensive Arduino starter kit 
 
 - **Arduino IDE** (v1.8.x or higher) or **PlatformIO**
 - **Required Libraries:**
-  - `Servo.h` - Control servo motor
+  - `Stepper.h` - Control stepper motor (built-in)
   - `RTClib.h` (by Adafruit) - Real-time clock functionality
   - `Wire.h` - I2C communication (built-in)
 - **Optional Libraries (for enhanced features):**
@@ -78,7 +78,7 @@ cd arduino-smart-pet-feeder
 
 - Go to: `Sketch` > `Include Library` > `Manage Libraries`
 - Search for and install:
-  - "Servo" (by Arduino)
+  - "Stepper" (built-in, no installation needed)
   - "RTClib" (by Adafruit)
 
 **Using PlatformIO:**
@@ -89,7 +89,7 @@ cd arduino-smart-pet-feeder
 
 - Connect components according to the [Setup Guide](docs/setup-guide.md)
 - Use the wiring diagram for proper connections
-- Ensure servo motor has adequate power supply
+- Ensure stepper motor and ULN2003 driver have adequate power supply (5V)
 
 ### 5. Upload Code
 
@@ -126,18 +126,18 @@ arduino-smart-pet-feeder/
 
 1. **Power On**: Connect Arduino to power source
 2. **Set Time**: RTC keeps time automatically (set once during initial setup)
-3. **Feeding Schedule**: Pre-programmed feeding times activate servo motor
-4. **Food Dispensing**: Servo rotates to open dispenser, then closes after set duration
+3. **Feeding Schedule**: Pre-programmed feeding times activate stepper motor
+4. **Food Dispensing**: Stepper motor rotates to open dispenser, then closes after set duration
 5. **Monitoring**: Check serial monitor for feeding logs and debug info
 
 ## Troubleshooting
 
-| Issue               | Possible Solution                                                          |
-| ------------------- | -------------------------------------------------------------------------- |
-| Servo not moving    | Check power supply, verify servo connections, test servo separately        |
-| Wrong feeding times | Set RTC time correctly, check timezone settings                            |
-| Food not dispensing | Adjust servo angle, check dispenser mechanism, ensure adequate food supply |
-| Arduino resets      | Use external power for servo, add capacitor across servo power lines       |
+| Issue               | Possible Solution                                                            |
+| ------------------- | ---------------------------------------------------------------------------- |
+| Stepper not moving  | Check power supply, verify ULN2003 connections, test stepper separately      |
+| Wrong feeding times | Set RTC time correctly, check timezone settings                              |
+| Food not dispensing | Adjust stepper steps, check dispenser mechanism, ensure adequate food supply |
+| Arduino resets      | Use external power for stepper motor, ensure proper grounding                |
 
 For more help, see the [Setup Guide](docs/setup-guide.md).
 
