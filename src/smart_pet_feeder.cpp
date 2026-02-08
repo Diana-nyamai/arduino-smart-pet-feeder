@@ -12,20 +12,19 @@ const int smallPortion = 512;
 const int largePortion = 1024;
 
 // door control settings
-const int doorOpenSteps = 512; // Steps to fully open door1
-const int doorOpenTime = 5000; // Time to keep door open (milliseconds)
+const int doorOpenSteps = 512; 
+const int doorOpenTime = 600; 
 
 // feeding schedule
-const int morningFeedHour = 16;
-const int feedMinutemorning = 12;
-const int eveningFeedHour = 16;
-const int feedMinuteEvening = 13;
+const int morningFeedHour = 0;
+const int feedMinutemorning = 24;
+const int eveningFeedHour = 0;
+const int feedMinuteEvening = 25;
 
 // track last feeding time
 bool hasFedMorning = false;
 bool hasFedEvening = false;
 
-// To prevent motor overheating, we will release the motor coils after each feeding
 void releaseMotorCoils()
 {
   digitalWrite(8, LOW);
