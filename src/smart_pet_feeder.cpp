@@ -12,18 +12,27 @@ const int smallPortion = 512;
 const int largePortion = 1024;
 
 // door control settings
-const int doorOpenSteps = 512; 
-const int doorOpenTime = 600; 
+const int doorOpenSteps = 512;
+const int doorOpenTime = 600;
 
 // feeding schedule
-const int morningFeedHour = 0;
-const int feedMinutemorning = 24;
-const int eveningFeedHour = 0;
-const int feedMinuteEvening = 25;
+const int morningFeedHour = 1;
+const int feedMinutemorning = 55;
+const int eveningFeedHour = 1;
+const int feedMinuteEvening = 57;
+
+// manual feed button
+const int feedButtonPin = 2;
+const unsigned long buttonDebounceMs = 50;
 
 // track last feeding time
 bool hasFedMorning = false;
 bool hasFedEvening = false;
+
+// button debounce state
+int buttonState = HIGH;
+int lastButtonReading = HIGH;
+unsigned long lastDebounceTime = 0;
 
 void releaseMotorCoils()
 {
@@ -55,6 +64,9 @@ void setup()
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
+
+  // button uses internal pull-up (pressed = LOW)
+  pinMode(feedButtonPin, INPUT_PULLUP);
 
   Serial.println("Smart Pet Feeder Initialized");
   feederMotor.setSpeed(feedSpeed); // set speed to 8 RPM
@@ -131,6 +143,27 @@ void loop()
   Serial.print(now.minute());
   Serial.print(":");
   Serial.println(now.second());
+
+  // Manual feeding button (press to feed a small portion)
+  int reading = digitalRead(feedButtonPin);
+  if (reading != lastButtonReading)
+  {
+    lastDebounceTime = millis();
+    lastButtonReading = reading;
+  }
+
+  if ((millis() - lastDebounceTime) > buttonDebounceMs)
+  {
+    if (reading != buttonState)
+    {
+      buttonState = reading;
+      if (buttonState == LOW)
+      {
+        Serial.println("==== Manual feed button pressed ====");
+        feedCat(smallPortion);
+      }
+    }
+  }
 
   // Morning feeding
   if (now.hour() == morningFeedHour && now.minute() == feedMinutemorning)
