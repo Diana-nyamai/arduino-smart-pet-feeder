@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <Stepper.h>
 #include <RTClib.h>
+#include "feeding_actions.h"
+#include "feeding_schedule.h"
 
 const int stepsPerRevolution = 2048;
 Stepper feederMotor(stepsPerRevolution, 8, 10, 9, 11); // Swap pins 9 and 10 for proper reversal
@@ -16,14 +18,14 @@ const int doorOpenSteps = 512;
 const int doorOpenTime = 600;
 
 // feeding schedule
-const int morningFeedHour = 1;
-const int feedMinutemorning = 55;
-const int eveningFeedHour = 1;
-const int feedMinuteEvening = 57;
+const int morningFeedHour = 6;
+const int morningFeedMinute = 0;
+const int eveningFeedHour = 18;
+const int eveningFeedMinute = 0;
 
 // manual feed button
 const int feedButtonPin = 2;
-const unsigned long buttonDebounceMs = 50;
+const unsigned long buttonDebounceMs = 10;
 
 // track last feeding time
 bool hasFedMorning = false;
@@ -69,15 +71,15 @@ void setup()
   pinMode(feedButtonPin, INPUT_PULLUP);
 
   Serial.println("Smart Pet Feeder Initialized");
-  feederMotor.setSpeed(feedSpeed); // set speed to 8 RPM
+  feederMotor.setSpeed(feedSpeed);
 
-  releaseMotorCoils(); // Release motor coils before stepping
+  releaseMotorCoils();
 }
 
 void openDoor()
 {
   Serial.println("Opening door...");
-  feederMotor.step(doorOpenSteps); // Rotate forward to open
+  feederMotor.step(doorOpenSteps);
   releaseMotorCoils();
   Serial.println("Door opened!");
 }
@@ -85,52 +87,20 @@ void openDoor()
 void closeDoor()
 {
   Serial.println("Closing door...");
-  feederMotor.step(-doorOpenSteps); // Rotate backward to close
+  feederMotor.step(-doorOpenSteps);
   releaseMotorCoils();
   Serial.println("Door closed!");
 }
 
-void feedCat(int portionSteps)
+void feedPortion(int portionSteps)
 {
-  Serial.print("Dispensing ");
-  if (portionSteps == smallPortion)
-  {
-    Serial.println("Small Food Portion: ");
-  }
-  else
-  {
-    Serial.println("Large Food Portion: ");
-  }
-
-  // Open door to dispense food
-  Serial.println("Opening door...");
-
-  float feedTime = (portionSteps * 60.0) / (2048.0 * feedSpeed);
-  Serial.print(" Estimated feed time: ");
-  Serial.println(feedTime, 1);
-  Serial.println("Seconds...");
-
-  unsigned long startTime = millis();
-
-  // Rotate motor to open door and dispense food in one motion
-  feederMotor.step(portionSteps); // Open and dispense
-  releaseMotorCoils();
-
-  // report actual feed time
-  unsigned long actualFeedTime = millis() - startTime;
-  Serial.print("Actual feed time: ");
-  Serial.println(actualFeedTime / 1000.0, 1);
-  Serial.println(" Seconds.");
-
-  // Wait for cat to eat
-  delay(doorOpenTime);
-
-  // Close door - return to starting position
-  Serial.println("Closing door...");
-  feederMotor.step(-portionSteps); // Close door
-  releaseMotorCoils();
-  Serial.println("Feeding complete.");
-  Serial.println("Door closed!");
+  feedCat(feederMotor,
+          portionSteps,
+          smallPortion,
+          feedSpeed,
+          stepsPerRevolution,
+          doorOpenTime,
+          releaseMotorCoils);
 }
 
 void loop()
@@ -144,65 +114,28 @@ void loop()
   Serial.print(":");
   Serial.println(now.second());
 
-  // Manual feeding button (press to feed a small portion)
-  int reading = digitalRead(feedButtonPin);
-  if (reading != lastButtonReading)
-  {
-    lastDebounceTime = millis();
-    lastButtonReading = reading;
-  }
+  handleManualFeeding(feedButtonPin,
+                      buttonDebounceMs,
+                      smallPortion,
+                      buttonState,
+                      lastButtonReading,
+                      lastDebounceTime,
+                      feedPortion);
 
-  if ((millis() - lastDebounceTime) > buttonDebounceMs)
-  {
-    if (reading != buttonState)
-    {
-      buttonState = reading;
-      if (buttonState == LOW)
-      {
-        Serial.println("==== Manual feed button pressed ====");
-        feedCat(smallPortion);
-      }
-    }
-  }
+  handleMorningFeeding(now,
+                       morningFeedHour,
+                       morningFeedMinute,
+                       largePortion,
+                       hasFedMorning,
+                       feedPortion);
 
-  // Morning feeding
-  if (now.hour() == morningFeedHour && now.minute() == feedMinutemorning)
-  {
-    if (!hasFedMorning)
-    {
-      Serial.println("==== Morning feeding time! ====");
-      feedCat(largePortion); // Dispense large portion
-      hasFedMorning = true;
-    }
-  }
-  else
-  {
-    // Reset morning flag when we're past the feeding minute
-    if (now.minute() != feedMinutemorning)
-    {
-      hasFedMorning = false;
-    }
-  }
+  handleEveningFeeding(now,
+                       eveningFeedHour,
+                       eveningFeedMinute,
+                       largePortion,
+                       hasFedEvening,
+                       feedPortion);
 
-  // Evening feeding
-  if (now.hour() == eveningFeedHour && now.minute() == feedMinuteEvening)
-  {
-    if (!hasFedEvening)
-    {
-      Serial.println("==== Evening feeding time! ====");
-      feedCat(largePortion); // Dispense small portion
-      hasFedEvening = true;
-    }
-  }
-  else
-  {
-    // Reset evening flag when we're past the feeding minute
-    if (now.minute() != feedMinuteEvening)
-    {
-      hasFedEvening = false;
-    }
-  }
-
-  delay(5000);         // check time every 5 seconds
-  releaseMotorCoils(); // Release motor coils after stepping
+  delay(5000); // check time every 5 seconds
+  releaseMotorCoils();
 }
