@@ -19,7 +19,7 @@ void feedCat(Stepper &motor,
         Serial.println("Large Food Portion: ");
     }
 
-    Serial.println("Opening door...");
+    Serial.println("Starting dispense...");
 
     float feedTime = (portionSteps * 60.0) / (stepsPerRevolution * feedSpeedRpm);
     Serial.print(" Estimated feed time: ");
@@ -38,9 +38,6 @@ void feedCat(Stepper &motor,
 
     delay(doorOpenTimeMs);
 
-    Serial.println("Closing door...");
-    motor.step(-portionSteps);
-    releaseMotorCoilsFn();
     Serial.println("Feeding complete.");
-    Serial.println("Door closed!");
+    Serial.println("Dispense finished.");
 }

@@ -10,8 +10,9 @@ RTC_DS3231 rtc;
 
 // feeding settings
 const int feedSpeed = 8;
-const int smallPortion = 512;
-const int largePortion = 1024;
+const int smallPortion = stepsPerRevolution;     // 1 full rotation
+const int largePortion = stepsPerRevolution * 2; // 2 full rotations
+const int manualPortion = stepsPerRevolution;    // manual button = 1 full rotation
 
 // door control settings
 const int doorOpenSteps = 512;
@@ -84,13 +85,6 @@ void openDoor()
   Serial.println("Door opened!");
 }
 
-void closeDoor()
-{
-  Serial.println("Closing door...");
-  feederMotor.step(-doorOpenSteps);
-  releaseMotorCoils();
-  Serial.println("Door closed!");
-}
 
 void feedPortion(int portionSteps)
 {
@@ -116,7 +110,7 @@ void loop()
 
   handleManualFeeding(feedButtonPin,
                       buttonDebounceMs,
-                      smallPortion,
+                      manualPortion,
                       buttonState,
                       lastButtonReading,
                       lastDebounceTime,
@@ -126,7 +120,7 @@ void loop()
                        morningFeedHour,
                        morningFeedMinute,
                        largePortion,
-                       hasFedMorning,
+                     hasFedMorning,
                        feedPortion);
 
   handleEveningFeeding(now,
