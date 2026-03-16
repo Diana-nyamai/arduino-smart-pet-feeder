@@ -7,5 +7,4 @@ void feedCat(Stepper &motor,
              int smallPortionSteps,
              int feedSpeedRpm,
              int stepsPerRevolution,
-             int doorOpenTimeMs,
              void (*releaseMotorCoilsFn)());

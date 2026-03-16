@@ -6,7 +6,6 @@ void feedCat(Stepper &motor,
              int smallPortionSteps,
              int feedSpeedRpm,
              int stepsPerRevolution,
-             int doorOpenTimeMs,
              void (*releaseMotorCoilsFn)())
 {
     Serial.print("Dispensing ");
@@ -35,8 +34,6 @@ void feedCat(Stepper &motor,
     Serial.print("Actual feed time: ");
     Serial.println(actualFeedTime / 1000.0, 1);
     Serial.println(" Seconds.");
-
-    delay(doorOpenTimeMs);
 
     Serial.println("Feeding complete.");
     Serial.println("Dispense finished.");

@@ -16,7 +16,6 @@ const int manualPortion = stepsPerRevolution;    // manual button = 1 full rotat
 
 // door control settings
 const int doorOpenSteps = 512;
-const int doorOpenTime = 600;
 
 // feeding schedule
 const int morningFeedHour = 6;
@@ -93,7 +92,6 @@ void feedPortion(int portionSteps)
           smallPortion,
           feedSpeed,
           stepsPerRevolution,
-          doorOpenTime,
           releaseMotorCoils);
 }
 
