@@ -5,14 +5,14 @@
 #include "feeding_schedule.h"
 
 const int stepsPerRevolution = 2048;
-Stepper feederMotor(stepsPerRevolution, 8, 10, 9, 11); // Swap pins 9 and 10 for proper reversal
+Stepper feederMotor(stepsPerRevolution, 8, 9, 10, 11);
 RTC_DS3231 rtc;
 
 // feeding settings
-const int feedSpeed = 8;
-const int smallPortion = stepsPerRevolution;     // 1 full rotation
-const int largePortion = stepsPerRevolution * 2; // 2 full rotations
-const int manualPortion = stepsPerRevolution;    // manual button = 1 full rotation
+const int feedSpeed = 8;                          
+const int smallPortion = stepsPerRevolution;     
+const int largePortion = stepsPerRevolution * 2; 
+const int manualPortion = stepsPerRevolution * 3; 
 
 // door control settings
 const int doorOpenSteps = 512;
@@ -84,7 +84,6 @@ void openDoor()
   Serial.println("Door opened!");
 }
 
-
 void feedPortion(int portionSteps)
 {
   feedCat(feederMotor,
@@ -118,7 +117,7 @@ void loop()
                        morningFeedHour,
                        morningFeedMinute,
                        largePortion,
-                     hasFedMorning,
+                       hasFedMorning,
                        feedPortion);
 
   handleEveningFeeding(now,
