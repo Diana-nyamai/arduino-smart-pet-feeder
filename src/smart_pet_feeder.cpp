@@ -127,6 +127,6 @@ void loop()
                        hasFedEvening,
                        feedPortion);
 
-  delay(5000); // check time every 5 seconds
+  delay(5000);
   releaseMotorCoils();
 }
